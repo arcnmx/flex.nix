@@ -30,36 +30,27 @@
       adobe-flex-sdk-windows = ./adobe/flex/windows.nix;
       adobe-flex-sdk-fontkit-deps = ./adobe/flex/fontkit.nix;
       apache-flex-sdk-full = ./apache/flex/full.nix;
-      apache-flash-player-sdk = { stdenvNoCC, writeScript, apache-flex-sdk, adobe-flex-playerglobal }: let
+      apache-flash-player-sdk = { stdenvNoCC, apache-flex-sdk, adobe-flex-playerglobal }: let
+        inherit (apache-flex-sdk) FLEX_HOME;
         inherit (adobe-flex-playerglobal) PLAYERGLOBAL_HOME;
       in stdenvNoCC.mkDerivation (drv: {
         pname = "apache-flash-player-sdk";
         version = "${apache-flex-sdk.version}_${adobe-flex-playerglobal.version}";
         dontUnpack = true;
-        inherit PLAYERGLOBAL_HOME;
+        inherit FLEX_HOME PLAYERGLOBAL_HOME;
         propagatedBuildInputs = [ apache-flex-sdk adobe-flex-playerglobal ];
       });
-      apache-air-sdk = { stdenvNoCC, writeScript, apache-flex-sdk, adobe-air-sdk-windows }: let
+      apache-air-sdk = { stdenvNoCC, apache-flex-sdk, adobe-air-sdk-windows }: let
         AIR_HOME = adobe-air-sdk-windows.AIRGLOBAL_HOME;
+        inherit (apache-flex-sdk) FLEX_HOME;
       in stdenvNoCC.mkDerivation (drv: {
         pname = "apache-air-sdk";
         version = "${apache-flex-sdk.version}_${adobe-air-sdk-windows.version}";
         dontUnpack = true;
-        inherit AIR_HOME;
+        inherit FLEX_HOME AIR_HOME;
         propagatedBuildInputs = [ apache-flex-sdk adobe-air-sdk-windows.airglobal ];
       });
-      apache-air-harman-sdk = { stdenvNoCC, writeScript, apache-flex-sdk, harman-air-sdk-flex }: let
-        inherit (harman-air-sdk-flex) AIR_HOME PLAYERGLOBAL_HOME;
-      in stdenvNoCC.mkDerivation (drv: {
-        pname = "apache-air-harman-sdk";
-        version = "${apache-flex-sdk.version}_${harman-air-sdk-flex.version}";
-        dontUnpack = true;
-        inherit AIR_HOME PLAYERGLOBAL_HOME;
-        propagatedBuildInputs = [ apache-flex-sdk harman-air-sdk-flex ];
-        passthru = {
-          inherit harman-air-sdk-flex;
-        };
-      });
+      apache-air-harman-sdk = ./harman/flex.nix;
       harman-air-sdk-33 = { mkAirSdkHarman }: mkAirSdkHarman {
         airVersion = "33.1.1.935";
         airSdk = "harman-full";
